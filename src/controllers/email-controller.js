@@ -1,10 +1,10 @@
 const { StatusCodes } = require('http-status-codes');
-const { TicketService } = require('../services');
+const { EmailService } = require('../services');
 const { SuccessResponse, ErrorResponse } = require('../utils/common');
 
 async function create(req, res){
     try {
-        const ticket = await TicketService.createTicket({
+        const ticket = await EmailService.createTicket({
             subject: req.body.subject,
             content: req.body.content,
             recipientEmail: req.body.recipientEmail

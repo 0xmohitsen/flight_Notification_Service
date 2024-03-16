@@ -1,3 +1,3 @@
 module.exports = {
-    TicketService: require('./ticket-service')
+    EmailService: require('./email-service')
 }
