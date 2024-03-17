@@ -7,7 +7,9 @@ async function create(req, res){
         const ticket = await EmailService.createTicket({
             subject: req.body.subject,
             content: req.body.content,
-            recipientEmail: req.body.recipientEmail
+            recipientEmail: req.body.recipientEmail,
+            status: req.body.status,
+            notificationTime: req.body.notificationTime
         })
 
         SuccessResponse.data = ticket;
