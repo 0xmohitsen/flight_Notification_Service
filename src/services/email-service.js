@@ -39,8 +39,19 @@ async function getPendingEmails(){
     }
 }
 
+async function updateSentEmailStatus(status, id){
+    try {
+        const response = await ticketRepo.update({status: status},id);
+        return response;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 module.exports = {
     sendMail,
     createTicket,
-    getPendingEmails
+    getPendingEmails,
+    updateSentEmailStatus
 }
