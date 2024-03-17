@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     notificationTime: {
-      type: DataTypes.Date,
+      type: DataTypes.DATE,
       allowNull: false
     }
   }, {
