@@ -1,15 +1,19 @@
 const CrudRepository = require('./crud-repository');
 const { Ticket } = require('../models');
+const { Op } = require('sequelize');
 
 class TicketRepository extends CrudRepository{
     constructor(){
         super(Ticket);
     }
 
-    async getPendingTickets(status){
+    async getPendingTickets(){
         const response = await Ticket.findAll({
             where: {
-                status: 'pending'
+                status: 'pending',
+                notificationTime: {
+                    [Op.lte]: new Date()
+                }
             }
         });
         return response;
