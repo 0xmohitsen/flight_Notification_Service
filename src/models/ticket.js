@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       values: [SUCCESS, PENDING, FAILED],
       defaultValue: PENDING,
       allowNull: false
+    },
+    notificationTime: {
+      type: DataTypes.Date,
+      allowNull: false
     }
   }, {
     sequelize,

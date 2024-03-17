@@ -29,6 +29,10 @@ module.exports = {
         defaultValue: PENDING,
         allowNull: false
       },
+      notificationTime: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
