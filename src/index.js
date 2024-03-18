@@ -11,15 +11,24 @@ async function connectQueue(){
 
         await channel.assertQueue(ServerConfig.MSG_QUEUE);
 
-        channel.consume(ServerConfig.MSG_QUEUE, (data) => {
+        channel.consume(ServerConfig.MSG_QUEUE, async (data) => {
             console.log(`${Buffer.from(data.content)}`);
 
             const object = JSON.parse(`${Buffer.from(data.content)}`);
 
+            await EmailService.createTicket({
+                subject: object.content,
+                content: object.text,
+                recipientEmail: object.recipientEmail,
+                notificationTime: new Date()
+            });
+
             EmailService.sendMail("notiairline4@gmail.com", object.recipientEmail, object.content, object.text);
 
             channel.ack(data);
-        })
+            console.log("Ticket created and email sent successfully.");
+        });
+
     } catch (error) {
         console.log(error);
     }
