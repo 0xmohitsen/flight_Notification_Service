@@ -39,9 +39,9 @@ async function getPendingEmails(){
     }
 }
 
-async function updateSentEmailStatus(status, id){
+async function updateTicket(ticketId, data){
     try {
-        const response = await ticketRepo.update({status: status},id);
+        const response = await ticketRepo.update(ticketId, data);
         return response;
     } catch (error) {
         console.log(error);
@@ -53,5 +53,5 @@ module.exports = {
     sendMail,
     createTicket,
     getPendingEmails,
-    updateSentEmailStatus
+    updateTicket
 }
