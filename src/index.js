@@ -5,7 +5,7 @@ const scheduleCrons = require('./utils/common/cron-job');
 
 async function connectQueue(){
     try {
-        const connection = await amqplib.connect("amqp://localhost");
+        const connection = await amqplib.connect(ServerConfig.MESSAGE_BROKER_URL);
 
         const channel = await connection.createChannel();
 

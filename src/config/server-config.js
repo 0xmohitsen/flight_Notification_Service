@@ -7,4 +7,5 @@ module.exports = {
     GMAIL_PASS: process.env.GMAIL_PASS,
     GMAIL_EMAIL: process.env.GMAIL_EMAIL,
     MSG_QUEUE: process.env.MSG_QUEUE,
+    MESSAGE_BROKER_URL: process.env.MESSAGE_BROKER_URL,
 }
