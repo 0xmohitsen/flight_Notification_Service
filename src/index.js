@@ -1,53 +1,28 @@
-const express = require('express');
-const amqplib = require('amqplib');
-const { EmailService } = require('./services');
-const scheduleCrons = require('./utils/common/cron-job');
+const express = require("express");
+const bodyParser = require("body-parser");
 
-async function connectQueue(){
-    try {
-        const connection = await amqplib.connect(ServerConfig.MESSAGE_BROKER_URL);
+const { PORT, REMINDER_BINDING_KEY } = require("./config/serverConfig");
 
-        const channel = await connection.createChannel();
+const TicketController = require("./controllers/ticket-controller");
+const EmailService = require("./services/email-service");
 
-        await channel.assertQueue(ServerConfig.MSG_QUEUE);
+const jobs = require("./utils/job");
+const { subscribeMessage, createChannel } = require("./utils/messageQueue");
 
-        channel.consume(ServerConfig.MSG_QUEUE, async (data) => {
-            console.log(`${Buffer.from(data.content)}`);
+const setupAndStartServer = async () => {
+  const app = express();
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
 
-            const object = JSON.parse(`${Buffer.from(data.content)}`);
+  app.post("/api/v1/tickets", TicketController.create);
 
-            await EmailService.createTicket({
-                subject: object.content,
-                content: object.text,
-                recipientEmail: object.recipientEmail,
-                notificationTime: new Date()
-            });
+  const channel = await createChannel();
+  subscribeMessage(channel, EmailService.subscribeEvents, REMINDER_BINDING_KEY);
 
-            EmailService.sendMail("notiairline4@gmail.com", object.recipientEmail, object.content, object.text);
+  app.listen(PORT, () => {
+    console.log(`Server started at port ${PORT}`);
+    jobs();
+  });
+};
 
-            channel.ack(data);
-            console.log("Ticket created and email sent successfully.");
-        });
-
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const { ServerConfig } = require('./config');
-const apiRoutes = require('./routes');
-
-const app = express();
-
-
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-
-app.use('/api', apiRoutes);
-
-app.listen(ServerConfig.PORT, async () => {
-    console.log(`Successfully started the server on PORT : ${ServerConfig.PORT}`);
-    await connectQueue();
-    console.log('Queue is up');
-    scheduleCrons();
-});
+setupAndStartServer();

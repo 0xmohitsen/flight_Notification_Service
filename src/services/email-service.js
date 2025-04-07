@@ -1,57 +1,79 @@
-const { TicketRepository } = require('../repositories');
+const sender = require("../config/emailConfig");
+const TicketRepository = require("../repository/ticket-repository");
+const ServerConfig = require("../config/serverConfig");
 
-const { MAILER } = require('../config');
+const repo = new TicketRepository();
 
-const ticketRepo = new TicketRepository();
+const sendBasicEmail = async (mailTo, mailSubject, mailBody) => {
+  try {
+    const response = await sender.sendMail({
+      from: ServerConfig.FROM_EMAIL,
+      to: mailTo,
+      subject: mailSubject,
+      text: mailBody,
+    });
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-async function sendMail(mailFrom, mailTo, subject, text){
-    try {
-        const response = await MAILER.sendMail({
-            from: mailFrom,
-            to: mailTo,
-            subject: subject,
-            text: text
-        });
-        return response; 
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-}
+const fetchPendingEmails = async (timestamp) => {
+  try {
+    const response = await repo.get({ status: "PENDING" });
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-async function createTicket(data){
-    try {
-        const response = await ticketRepo.create(data);
-        return response;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-}
+const updateTicket = async (ticketId, data) => {
+  try {
+    const response = await repo.update(ticketId, data);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-async function getPendingEmails(){
-    try {
-        const response = await ticketRepo.getPendingTickets();
-        return response;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-}
+const createNotification = async (data) => {
+  try {
+    console.log("What is the data at create Noti service :", data);
+    const response = await repo.create(data);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-async function updateTicket(ticketId, data){
-    try {
-        const response = await ticketRepo.update(ticketId, data);
-        return response;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-}
+const subscribeEvents = async (payload) => {
+  console.log("Data at subscribeEvents :", payload);
+  let service = payload.subject;
+  let data = payload;
+  switch (service) {
+    case "Flight booked":
+      await createNotification(data);
+      break;
+    case "SEND_BASIC_MAIL":
+      await sendBasicEmail(data);
+      break;
+    default:
+      console.log("No valid event received");
+      break;
+  }
+};
 
 module.exports = {
-    sendMail,
-    createTicket,
-    getPendingEmails,
-    updateTicket
-}
+  sendBasicEmail,
+  fetchPendingEmails,
+  createNotification,
+  updateTicket,
+  subscribeEvents,
+};
+
+/**
+ * SMTP -> a@b.com
+ * receiver-> d@e.com
+ *
+ * from: support@noti.com
+ */
